@@ -43,7 +43,44 @@ curl http://localhost:8080/employees
   {"ID":3,"Name":"Charlie","Salary":6000}
 ]
 ```
+## POST /employees
 
+
+```bash
+curl -X POST http://localhost:8080/employees \
+  -H "Content-Type: application/json" \
+  -d '{"name": "David", "salary": 5500}'
+```
+## bODY attendue
+
+```json
+{
+  "name": "David",
+  "salary": 5500
+}
+```
+## Réponse attendue
+
+```json
+{"ID":4,"Name":"David","Salary":5500}
+```
+## PUT /employees/raise
+```bash
+curl -X PUT http://localhost:8080/employees/raise \
+  -H "Content-Type: application/json" \
+  -d '{"id": 1, "percent": 10}'
+```
+## BODY attendue
+```json
+{
+  "id": 1,
+  "percent": 10
+}
+```
+## Réponse attendue
+```json
+{"message": "Salaire augmenté avec succès"}
+```
 ## Architecture
 
 - **models/** : Définition des structures de données (Employee, Manager)
