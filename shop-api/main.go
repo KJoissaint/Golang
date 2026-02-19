@@ -87,6 +87,18 @@ func main() {
 	mux.HandleFunc("/shops/whatsapp", methodHandler("PUT",
 		middleware.RequireSuperAdmin(shopHandler.UpdateWhatsApp)))
 
+	// Root handler - serves static files for non-API routes
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Only serve static files for GET requests
+		if r.Method != http.MethodGet {
+			http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Serve static files
+		http.FileServer(http.Dir("./frontend")).ServeHTTP(w, r)
+	})
+
 	// Start server
 	fmt.Println("🚀 Shop Management API Server Started")
 	fmt.Printf("📍 Server running on http://localhost%s\n", config.ServerPort)
