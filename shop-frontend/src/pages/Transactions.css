@@ -1,0 +1,14 @@
+.badge-sale {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-expense {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-withdrawal {
+  background: #fef3c7;
+  color: #92400e;
+}
