@@ -38,20 +38,35 @@ const Transactions = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      const data = { ...formData }
-      if (data.type !== 'Sale') {
-        delete data.product_id
-      }
-      await transactionsAPI.create(data)
-      setShowModal(false)
-      resetForm()
-      loadTransactions()
-    } catch (error) {
-      alert(error.response?.data?.error || 'Error creating transaction')
+  e.preventDefault()
+
+  try {
+    const token = localStorage.getItem('token')
+    console.log("🔐 Token being sent:", token)
+
+    const data = {
+      type: formData.type,
+      quantity: Number(formData.quantity),
+      amount: Number(formData.amount)
     }
+
+    if (formData.type === 'Sale') {
+      data.product_id = Number(formData.product_id)
+    }
+
+    console.log("📦 Payload being sent:", data)
+
+    await transactionsAPI.create(data)
+
+    setShowModal(false)
+    resetForm()
+    loadTransactions()
+  } catch (error) {
+    console.error("❌ Full error response:", error.response)
+    alert(error.response?.data?.error || 'Error creating transaction')
   }
+}
+
 
   const resetForm = () => {
     setFormData({
