@@ -41,9 +41,6 @@ const Transactions = () => {
   e.preventDefault()
 
   try {
-    const token = localStorage.getItem('token')
-    console.log("🔐 Token being sent:", token)
-
     const data = {
       type: formData.type,
       quantity: Number(formData.quantity),
@@ -62,7 +59,7 @@ const Transactions = () => {
     resetForm()
     loadTransactions()
   } catch (error) {
-    console.error("❌ Full error response:", error.response)
+    console.error(" Full error response:", error.response)
     alert(error.response?.data?.error || 'Error creating transaction')
   }
 }

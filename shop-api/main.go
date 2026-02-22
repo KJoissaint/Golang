@@ -77,8 +77,13 @@ func main() {
 	})
 
 	// Dashboard route (SuperAdmin only)
-	mux.HandleFunc("/reports/dashboard", methodHandler("GET",
-		middleware.RequireSuperAdmin(transactionHandler.GetDashboard)))
+	mux.HandleFunc(
+		"/reports/dashboard",
+		methodHandler(
+			"GET",
+			middleware.RequireSuperAdmin(transactionHandler.GetDashboard),
+		),
+	)
 
 	// Shop routes
 	mux.HandleFunc("/shops", methodHandler("GET",

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
-import { dashboardAPI, transactionsAPI, shopAPI } from '../services/api'
+import { dashboardAPI, transactionsAPI, shopAPI, productsAPI } from '../services/api'
 import './Dashboard.css'
 
 const Dashboard = () => {
@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null)
   const [transactions, setTransactions] = useState([])
   const [shopName, setShopName] = useState('')
+  const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -16,23 +17,29 @@ const Dashboard = () => {
   }, [])
 
   const loadData = async () => {
-    try {
-      if (isSuperAdmin()) {
-        const statsResponse = await dashboardAPI.getStats()
-        setStats(statsResponse.data)
-      }
-
-      const transResponse = await transactionsAPI.getAll()
-      setTransactions(transResponse.data?.slice(0, 5) || [])
-
-      const shopsResponse = await shopAPI.getAll()
-      const shop = shopsResponse.data.find(s => s.id === user.shop_id)
-      if (shop) setShopName(shop.name)
-    } catch (error) {
-      console.error('Error loading dashboard:', error)
+  try {
+    if (isSuperAdmin()) {
+      const statsResponse = await dashboardAPI.getStats()
+      setStats(statsResponse.data)
     }
-    setLoading(false)
+
+    const transResponse = await transactionsAPI.getAll()
+    setTransactions(transResponse.data?.slice(0, 5) || [])
+
+    const productsResponse = await productsAPI.getAll()
+    setProducts(productsResponse.data || [])
+
+    const shopsResponse = await shopAPI.getAll()
+    const shop = shopsResponse.data.find(s => s.id === user.shop_id)
+    if (shop) setShopName(shop.name)
+
+  } catch (error) {
+    console.error('Error loading dashboard:', error)
   }
+
+  setLoading(false)
+}
+
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('fr-MA', {
@@ -61,6 +68,9 @@ const Dashboard = () => {
       </div>
     )
   }
+  const totalProducts = products.length
+  const totalStock = products.reduce((sum, p) => sum + p.stock, 0)
+  const lowStockCount = products.filter(p => p.stock < 5).length
 
   return (
     <div>
@@ -94,9 +104,33 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+        <div className="stats-grid">
+          <div className="stat-card primary">
+            <div className="stat-label">Total Products</div>
+            <div className="stat-value">{totalProducts}</div>
+          </div>
+
+          <div className="stat-card success">
+            <div className="stat-label">Total Stock Units</div>
+            <div className="stat-value">{totalStock}</div>
+          </div>
+
+          <div className="stat-card warning">
+            <div className="stat-label">Low Stock Items</div>
+            <div className="stat-value">{lowStockCount}</div>
+          </div>
+        </div>
 
         <div className="section">
-          <h3>Recent Transactions</h3>
+          <div className="section-header">
+            <h3>Recent Transactions</h3>
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => window.location.href = '/transactions'}
+            >
+              + Add Transaction
+            </button>
+          </div>
           <div className="table-container">
             <table>
               <thead>

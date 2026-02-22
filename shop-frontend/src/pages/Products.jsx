@@ -9,6 +9,7 @@ const Products = () => {
   const [products, setProducts] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
+  const [viewingProduct, setViewingProduct] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -33,20 +34,37 @@ const Products = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      if (editingProduct) {
-        await productsAPI.update(editingProduct.id, formData)
-      } else {
-        await productsAPI.create(formData)
-      }
-      setShowModal(false)
-      resetForm()
-      loadProducts()
-    } catch (error) {
-      alert(error.response?.data?.error || 'Error saving product')
+  e.preventDefault()
+
+  try {
+    // 🔥 Convert numeric fields properly
+    const payload = {
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+      purchase_price: Number(formData.purchase_price),
+      selling_price: Number(formData.selling_price),
+      stock: Number(formData.stock),
+      image_url: formData.image_url
     }
+
+    console.log("📦 Product payload:", payload)
+
+    if (editingProduct) {
+      await productsAPI.update(editingProduct.id, payload)
+    } else {
+      await productsAPI.create(payload)
+    }
+
+    setShowModal(false)
+    resetForm()
+    loadProducts()
+
+  } catch (error) {
+    console.error("❌ Full error:", error.response)
+    alert(error.response?.data?.error || 'Error saving product')
   }
+}
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this product?')) return
@@ -107,7 +125,11 @@ const Products = () => {
 
         <div className="product-grid">
           {products.map(product => (
-            <div key={product.id} className="product-card">
+            <div
+              key={product.id}
+              className="product-card clickable"
+              onClick={() => setViewingProduct(product)}
+            >
               <div className="product-image">
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.name} />
@@ -137,10 +159,23 @@ const Products = () => {
                 <div className="stock">Stock: {product.stock} items</div>
 
                 <div className="actions">
-                  <button onClick={() => openModal(product)} className="btn btn-sm btn-primary">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openModal(product)
+                    }}
+                    className="btn btn-sm btn-primary"
+                  >
                     Edit
                   </button>
-                  <button onClick={() => handleDelete(product.id)} className="btn btn-sm btn-danger">
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDelete(product.id)
+                    }}
+                    className="btn btn-sm btn-danger"
+                  >
                     Delete
                   </button>
                 </div>
@@ -236,6 +271,51 @@ const Products = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+        {viewingProduct && (
+          <div className="modal" onClick={() => setViewingProduct(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Product Details</h3>
+                <button onClick={() => setViewingProduct(null)} className="close">
+                  &times;
+                </button>
+              </div>
+
+              <div className="product-details-view">
+                {viewingProduct.image_url ? (
+                  <img
+                    src={viewingProduct.image_url}
+                    alt={viewingProduct.name}
+                    className="details-image"
+                  />
+                ) : (
+                  <div className="details-image-placeholder">📦</div>
+                )}
+
+                <h2>{viewingProduct.name}</h2>
+                <p><strong>Category:</strong> {viewingProduct.category}</p>
+                <p><strong>Description:</strong> {viewingProduct.description}</p>
+                <p><strong>Selling Price:</strong> {formatPrice(viewingProduct.selling_price)}</p>
+
+                {isSuperAdmin() && (
+                  <>
+                    <p><strong>Purchase Price:</strong> {formatPrice(viewingProduct.purchase_price)}</p>
+                    <p>
+                      <strong>Profit per Unit:</strong>{" "}
+                      {formatPrice(viewingProduct.selling_price - viewingProduct.purchase_price)}
+                    </p>
+                  </>
+                )}
+
+                <p><strong>Stock:</strong> {viewingProduct.stock} items</p>
+
+                {viewingProduct.stock < 5 && (
+                  <div className="low-stock-warning">⚠ Low stock!</div>
+                )}
+              </div>
             </div>
           </div>
         )}

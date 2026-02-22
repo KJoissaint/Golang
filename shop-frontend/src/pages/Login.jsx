@@ -112,6 +112,11 @@ const Login = () => {
           <p className="auth-link">
             Don't have an account? <Link to="/register">Register here</Link>
           </p>
+          <div className="test-credentials">
+            <h4>Test Credentials:</h4>
+            <p><strong>SuperAdmin:</strong> super@shop1.com / admin123</p>
+            <p><strong>Admin:</strong> admin@shop1.com / admin123</p>
+          </div>
         </div>
       </div>
     </div>

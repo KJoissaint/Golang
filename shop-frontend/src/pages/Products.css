@@ -91,3 +91,36 @@ textarea:focus {
   outline: none;
   border-color: var(--primary-color);
 }
+.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+.product-details-view {
+  text-align: center;
+}
+
+.details-image {
+  width: 200px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.details-image-placeholder {
+  font-size: 60px;
+  margin-bottom: 1rem;
+}
+
+.low-stock-warning {
+  margin-top: 1rem;
+  padding: 8px;
+  background-color: #ffe5e5;
+  color: #c0392b;
+  border-radius: 6px;
+  font-weight: bold;
+}
