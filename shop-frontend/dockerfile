@@ -1,0 +1,35 @@
+# Étape 1 : Construction (Builder) avec Node.js
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Récupérer l'argument passé par le docker-compose
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
+# Copier les fichiers de dépendances
+COPY package*.json ./
+
+# Installer les dépendances
+RUN npm install
+
+# Copier le reste du code frontend
+COPY . .
+
+# Compiler l'application React/Vite pour la production
+RUN npm run build
+
+# Étape 2 : Serveur Web Nginx
+FROM nginx:alpine
+
+# Copier la configuration Nginx personnalisée pour React Router
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copier les fichiers statiques compilés de Vite (dossier dist) vers Nginx
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Exposer le port 80 (qui sera mappé sur le 3000 par docker-compose)
+EXPOSE 80
+
+# Lancer Nginx
+CMD ["nginx", "-g", "daemon off;"]
