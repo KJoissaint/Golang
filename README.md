@@ -147,6 +147,8 @@ docker-compose down
 # Reconstruire après un changement de code
 docker-compose up -d --build
 ```
+si vous avez use docker-compose up -d --build, vous pouvez directement aller sur
+http://localhost:3000/ pour accéder à l'interface utilisateur, et http://localhost:8081/ pour tester les endpoints de l'API (via Postman ou curl).
 
 ---
 
