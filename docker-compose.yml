@@ -1,0 +1,25 @@
+
+services:
+  backend:
+    build:
+      context: ./shop-api
+      dockerfile: dockerfile
+    container_name: shop-backend
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    # Pas besoin de volumes car la DB est in-memory pour le moment
+
+  frontend:
+    build:
+      context: ./shop-frontend
+      dockerfile: dockerfile
+      args:
+        # L'URL de l'API que le navigateur client devra contacter
+        - VITE_API_URL=http://localhost:8081
+    container_name: shop-frontend
+    ports:
+      - "3000:80" # Nginx expose le port 80, on le map sur le 3000
+    depends_on:
+      - backend
+    restart: unless-stopped

@@ -1,0 +1,32 @@
+# Étape 1 : Construction (Builder)
+FROM golang:1.24-alpine AS builder
+
+# Définir le dossier de travail
+WORKDIR /app
+
+# Copier les fichiers de modules et télécharger les dépendances
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copier le reste du code source
+COPY . .
+
+# Compiler l'application (désactiver CGO pour un binaire statique)
+RUN CGO_ENABLED=0 GOOS=linux go build -o shop-api .
+
+# Étape 2 : Image finale de production
+FROM alpine:latest
+
+WORKDIR /root/
+
+# Ajouter les certificats SSL au cas où tu ferais des requêtes externes
+RUN apk --no-cache add ca-certificates
+
+# Copier le binaire depuis l'étape de build
+COPY --from=builder /app/shop-api .
+
+# Exposer le port du serveur Go
+EXPOSE 8081
+
+# Lancer l'application
+CMD ["./shop-api"]
